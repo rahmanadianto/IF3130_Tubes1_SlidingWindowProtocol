@@ -23,7 +23,7 @@ struct Frame {
 	unsigned int stx;
 	unsigned int etx;
 	Byte checksum;
-	Byte* data;
+	Byte data;
 };
 
 struct Ack {
