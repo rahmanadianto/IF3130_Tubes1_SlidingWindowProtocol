@@ -3,9 +3,17 @@
  * Description : This file contain all configuration and data structure for sliding window protocol project 
  */
 
-
 #ifndef COMMON_H
 #define COMMON_H
+
+#include <sys/socket.h>
+#include <unistd.h> // close socket
+#include <netdb.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h> // inet_pton
+#include <pthread.h>
 
 /* ASCII CONST */
 #define SOH 1				// Start of Header Character 
@@ -15,6 +23,9 @@
 #define NAK 21			// Negatif Acknowledgement
 #define Endfile 26	// End of file Character
 
+/* Constant */
+#define MAXLEN 1024
+
 typedef unsigned char Byte;
 
 struct Frame {
@@ -22,14 +33,21 @@ struct Frame {
 	unsigned int frame_number;
 	unsigned int stx;
 	unsigned int etx;
-	Byte checksum;
-	Byte* data;
+	unsigned int checksum;
+	Byte data;
 };
 
-struct ACK {
-	unsigned int ack;
+struct Ack {
+	unsigned int value;
 	unsigned int frame_number;
-	Byte checksum;
+	unsigned int checksum;
 };
+
+unsigned int hash(unsigned int input) {
+  unsigned int hash = 5381;
+  hash += ((input << 5) ^ ((input & 0xf8000000) >> 27));
+
+  return hash;
+}
 
 #endif
