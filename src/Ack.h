@@ -7,16 +7,11 @@ using namespace std;
 
 class Ack {
 public:
-<<<<<<< HEAD
-  ACK(Byte ack, unsigned int frame_number) {
-    
-=======
   Ack() {
 
   }
-  Ack(Byte b, int frameNumber) {
+  Ack(Byte ack, unsigned int frame_number) {
 
->>>>>>> 1011e348b60b2f41e08af7fd11b62d15922f42c9
   }
   bool isValid() {
 
