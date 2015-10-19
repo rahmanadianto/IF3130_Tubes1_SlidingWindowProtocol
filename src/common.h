@@ -25,6 +25,9 @@
 #define MAXLEN 1024
 #define WINDOWSIZE 8
 
+#define DEFAULT_PORT 21234
+#define DELAY 500
+
 typedef unsigned char Byte;
 
 
