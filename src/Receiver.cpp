@@ -64,15 +64,13 @@ void *run_receive(void*) {
 
 void *run_consume(void*) {
   int pt = 0;
-  int wait = 100000; // in microseconds;
   while(1) {
     while(q[pt].empty()) {
-      usleep(wait);
+      usleep(DELAY);
     }
     printf("Mengkonsumsi byte : '%c'\n", q[pt].front());
     q[pt].pop();
-    pt++;
-    usleep(DELAY);
+    pt = (pt + 1) % BUFFER_SIZE;
   }
   pthread_exit(NULL);
 }
