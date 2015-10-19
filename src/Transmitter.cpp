@@ -1,4 +1,13 @@
 #include "Frame.h"
+#include "Ack.h"
+#include <chrono>
+
+const long long TIMEOUT = 25000; // millisecond
+
+// receive acknowledgement
+void* receiveAck(void* threadId) {
+
+}
 
 class Transmitter {
 	public:
@@ -25,11 +34,29 @@ class Transmitter {
 			receiverAddr.sin_port = htons(port);
 
 			messageParsing(filename);
-			iterator = 0;
 		}
 
 		void send() {
-			// sending data
+			/* Create thread for receive ACK signal from receiver */
+			pthread_t thread;
+			pthread_create(&thread, NULL, receiveAck, NULL);
+
+			socklen_t addrlen = sizeof(receiverAddr);
+			for (auto it : frames) {
+				if (retransmissionQueue.size() < WINDOWSIZE) {
+					if (!sendto(socketfd, it.serialize(), 12, 0, (struct sockaddr *)&receiverAddr, addrlen)) {
+						perror("sendto failed");
+					} 
+
+					retransmissionQueue.push_back(std::make_pair(it, chrono::system_clock::now()));
+				}
+
+				while (!retransmissionQueue.empty() && timeDiv(chrono::system_clock::now(), retransmissionQueue.front().second) > TIMEOUT) {
+					Frame frame = retransmissionQueue.front().first;
+					retransmissionQueue.pop_front();
+					retransmissionQueue.push_back(std::make_pair(frame, chrono::system_clock::now()));
+				} 
+			}
 		}
 
 		~Transmitter() {
@@ -38,13 +65,14 @@ class Transmitter {
 
 	private:
 		int socketfd; // socket handler
-		int iterator;
 		struct sockaddr_in transmitterAddr;
 		struct sockaddr_in receiverAddr;
 
+		// buffer for retransmission, set chrono::system_clock::now() every transmit
+		std::deque<std::pair<Frame, chrono::system_clock::time_point> > retransmissionQueue; 
+
 		// array of frame
 		std::vector<Frame> frames;
-
 		void messageParsing(char* filename) {
 			std::ifstream infile;
 			infile.open(filename);
@@ -58,6 +86,13 @@ class Transmitter {
 				counter++; 
 			}
 		}
+
+		// div antar dua waktu
+		long long timeDiv(chrono::system_clock::time_point t1, chrono::system_clock::time_point t2) {
+			return chrono::duration_cast<chrono::milliseconds>(t1 - t2).count();
+		}
+
+		friend void* receiveAck(void* threadId); 
 };
 
 int main(int argc, char* argv[]) {
