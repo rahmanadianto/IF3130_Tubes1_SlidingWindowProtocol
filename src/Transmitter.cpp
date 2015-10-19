@@ -1,3 +1,7 @@
+/*
+ * Author : Rahman Adianto - 13513006
+ */
+
 #include "Frame.h"
 #include "Ack.h"
 #include <chrono>
