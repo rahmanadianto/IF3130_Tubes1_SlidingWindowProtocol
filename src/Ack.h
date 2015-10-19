@@ -7,6 +7,9 @@ using namespace std;
 
 class Ack {
 public:
+  ACK(Byte ack, unsigned int frame_number) {
+    
+  }
   bool isValid() {
 
   }
@@ -17,7 +20,7 @@ public:
 
   }
   Byte getAck() {
-
+    return value;
   }
 
 private:
