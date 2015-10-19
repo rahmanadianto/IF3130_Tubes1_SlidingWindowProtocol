@@ -49,20 +49,29 @@ void *run_receive(void*) {
   while(1) {
     int recvlen = recvfrom(sockfd, buffer, 9, 0, (struct sockaddr*) &remaddr, &addrlen);
     f.unserialize(buffer);
+    int num = f.getFrameNumber();
     if(f.isValid()) {
       sendAck(f, true);
-      printf("Frame number %d diterima dengan sukses", f.getFrameNumber());
+      printf("Frame number %d diterima dengan sukses.\n", num);
+      q[num].push(f.getData());
     } else {
       sendAck(f, false);
-      printf("Frame number %d diterima. Terjadi error pada checksum atau data tidak sesuai format", f.getFrameNumber());
+      printf("Frame number %d diterima. Checksum error / format salah.\n", num);
     }
   }
   pthread_exit(NULL);
 }
 
 void *run_consume(void*) {
+  int pt = 0;
+  int wait = 100000; // in microseconds;
   while(1) {
-
+    while(q[pt].empty()) {
+      usleep(wait);
+    }
+    printf("Mengkonsumsi byte : '%c'\n", q[pt].front());
+    q[pt].pop();
+    pt++;
     usleep(DELAY);
   }
   pthread_exit(NULL);

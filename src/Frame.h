@@ -31,6 +31,10 @@ public:
 
   }
 
+  Byte getData() {
+    
+  }
+
 private:
   // return checksum computed based on data
   unsigned int generateChecksum() {
