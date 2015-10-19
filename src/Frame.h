@@ -27,6 +27,10 @@ public:
 
   }
 
+  unsigned int getFrameNumber() {
+
+  }
+
 private:
   // return checksum computed based on data
   unsigned int generateChecksum() {

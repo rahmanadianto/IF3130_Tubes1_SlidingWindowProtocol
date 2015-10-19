@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "Frame.h"
+#include "Ack.h"
 
 #include <arpa/inet.h>
 #include <bits/stdc++.h>
@@ -16,6 +17,7 @@
 using namespace std;
 
 const int BUFFER_SIZE = 2 * WINDOWSIZE;
+const int N = 25;
 
 struct arg_struct {
   // nothing, just formality :)
@@ -23,19 +25,47 @@ struct arg_struct {
 
 struct arg_struct args;
 
-queue<Frame> q[BUFFER_SIZE];
+queue<char> q[BUFFER_SIZE];
+char buffer[N];
+struct sockaddr_in myaddr;
+struct sockaddr_in remaddr;
+socklen_t addrlen;
+int sockfd;
 
 /* paddr: print the IP address in a standard decimal dotted format */
 void paddr(unsigned char *a) {
   printf("%d.%d.%d.%d", a[0], a[1], a[2], a[3]);
 }
 
-void *run_receive(void*) {
+void sendAck(Frame f, bool success) {
+  printf("Mengirim ");
+  printf(success? "ACK\n" : "NAK\n");
+  Ack ack(success? ACK : NAK, f.getFrameNumber());
+  sendto(sockfd, ack.serialize(), 6, 0, (struct sockaddr*) &remaddr, (socklen_t) addrlen);
+}
 
+void *run_receive(void*) {
+  Frame f;
+  while(1) {
+    int recvlen = recvfrom(sockfd, buffer, 9, 0, (struct sockaddr*) &remaddr, &addrlen);
+    f.unserialize(buffer);
+    if(f.isValid()) {
+      sendAck(f, true);
+      printf("Frame number %d diterima dengan sukses", f.getFrameNumber());
+    } else {
+      sendAck(f, false);
+      printf("Frame number %d diterima. Terjadi error pada checksum atau data tidak sesuai format", f.getFrameNumber());
+    }
+  }
+  pthread_exit(NULL);
 }
 
 void *run_consume(void*) {
-  
+  while(1) {
+
+    usleep(DELAY);
+  }
+  pthread_exit(NULL);
 }
 
 int argc;
@@ -61,9 +91,6 @@ public:
   ~Receiver() {
     pthread_exit(NULL);
     close(sockfd);
-  }
-  void sendAck(Frame f) {
-
   }
 private:
   void create_socket() {
@@ -95,17 +122,7 @@ private:
     printf("Binding berhasil\n\n");
   }
 
-  /* Socket */
-
-  int sockfd;
-  /* Binding socket */
-  struct sockaddr_in myaddr;
-  struct sockaddr_in remaddr;
-  socklen_t addrlen;
-  int recvlen;
-  int cnt_receiver, cnt_consumer;
   int port;
-
   pthread_t receiver_thread;
   pthread_t consumer_thread;
 };
