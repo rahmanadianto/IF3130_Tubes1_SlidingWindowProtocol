@@ -1,6 +1,4 @@
-#include	"common.h"
-#include <fstream>
-#include <vector>
+#include "Frame.h"
 
 class Transmitter {
 	public:
@@ -45,31 +43,18 @@ class Transmitter {
 		struct sockaddr_in receiverAddr;
 
 		// array of frame
-		std::vector<struct Frame> frames;
+		std::vector<Frame> frames;
 
 		void messageParsing(char* filename) {
 			std::ifstream infile;
-			Frame frame;
 			infile.open(filename);
 
 			char currentChar;
 			int counter = 0;
 			int checksum;
 			while (infile.get(currentChar)) {
-				frame.soh = SOH;
-				checksum = hash(SOH);
-				frame.frame_number = counter;
-				checksum += hash(counter);
-				frame.stx = STX;
-				checksum += hash(STX);
-				frame.data = (Byte) currentChar;
-				checksum += hash((unsigned int) frame.data);
-				frame.etx = ETX;
-				checksum += hash(ETX);
-				frame.checksum = checksum;
-
+				Frame frame(counter % (2 * WINDOWSIZE), currentChar);
 				frames.push_back(frame);
-
 				counter++; 
 			}
 		}

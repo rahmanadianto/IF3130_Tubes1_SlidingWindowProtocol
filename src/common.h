@@ -23,6 +23,7 @@
 
 /* Constant */
 #define MAXLEN 1024
+#define WINDOWSIZE 8
 
 typedef unsigned char Byte;
 
