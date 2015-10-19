@@ -6,12 +6,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <bits/stdc++.h>
 #include <sys/socket.h>
 #include <unistd.h> // close socket
 #include <netdb.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <arpa/inet.h> // inet_pton
 #include <pthread.h>
 
@@ -28,26 +26,6 @@
 
 typedef unsigned char Byte;
 
-struct Frame {
-	unsigned int soh;
-	unsigned int frame_number;
-	unsigned int stx;
-	unsigned int etx;
-	unsigned int checksum;
-	Byte data;
-};
 
-struct Ack {
-	unsigned int value;
-	unsigned int frame_number;
-	unsigned int checksum;
-};
-
-unsigned int hash(unsigned int input) {
-  unsigned int hash = 5381;
-  hash += ((input << 5) ^ ((input & 0xf8000000) >> 27));
-
-  return hash;
-}
 
 #endif
