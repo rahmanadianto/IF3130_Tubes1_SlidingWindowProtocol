@@ -7,17 +7,23 @@ using namespace std;
 
 class Ack {
 public:
+  Ack() {
+
+  }
+  Ack(Byte ack, unsigned int frame_number) {
+
+  }
   bool isValid() {
 
   }
-  char* unserialize() {
+  char* serialize() {
 
   }
-  void serialize(char* c) {
+  void unserialize(char* c) {
 
   }
   Byte getAck() {
-
+    return value;
   }
 
 private:
