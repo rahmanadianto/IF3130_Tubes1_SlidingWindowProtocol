@@ -20,10 +20,10 @@ public:
   char* serialize() {
     char* temp = new char[6];
     temp[0]=value;
-    temp[1]=frame_number & 0xFF;
-    temp[2]=(frame_number >> 8) & 0xFF;
-    temp[3]=(frame_number >> 16) & 0xFF;
-    temp[4]=(frame_number >> 24) & 0xFF;
+    temp[1]=(frame_number >> 24) & 0xFF;
+    temp[2]=(frame_number >> 16) & 0xFF;
+    temp[3]=(frame_number >> 8) & 0xFF;
+    temp[4]=frame_number & 0xFF;
     temp[5]=checksum;
     return temp;
   }
