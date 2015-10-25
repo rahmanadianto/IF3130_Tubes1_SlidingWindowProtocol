@@ -43,8 +43,9 @@ private:
   // return checksum computed based on data
   Byte getCRC(Byte* BitString) {
     unsigned long x = 0;
-    for (int i=0; i<6; i++)
+    for (int i=0; i<5; i++)
       x = (x<<8) + (unsigned long) BitString[i];
+    x = x<<8;
     unsigned long polynomial = 0xEA8000000000;
     for (int i=0; i<40; i++) {
       if ((x>>(47-i)) % 2 == 1)
