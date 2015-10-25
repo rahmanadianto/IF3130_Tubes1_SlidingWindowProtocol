@@ -61,10 +61,10 @@ public:
 private:
   // return checksum computed based on data
   Byte getCRC(Byte* BitString) {
-    unsigned long x = 0;
+    unsigned long long x = 0;
     for (int i=0; i<8; i++)
-      x = (x<<8) + (unsigned long) BitString[i];
-    unsigned long polynomial = 0xEA80000000000000;
+      x = (x<<8) + (unsigned long long) BitString[i];
+    unsigned long long polynomial = 0xEA80000000000000;
     for (int i=0; i<56; i++) {
       if ((x>>(63-i)) % 2 == 1)
         x = x ^ polynomial;
