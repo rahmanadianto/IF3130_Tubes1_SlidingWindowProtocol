@@ -19,7 +19,7 @@ typedef struct {
 } rQElement;
 
 // buffer for retransmission, set chrono::system_clock::now() every transmit
-queue<rQElement> retransmissionQueue;
+deque<rQElement> retransmissionQueue;
 
 // receive acknowledgement
 void* receiveAck(void* threadId) {
@@ -33,7 +33,15 @@ void* receiveAck(void* threadId) {
     if(ack.isValid()) {
     	if (retransmissionQueue.front().frame.getFrameNumber() == frameNum) {
     		while(retransmissionQueue.front().ack == ACK) {
-    			retransmissionQueue.pop();
+    			retransmissionQueue.pop_front();
+    			printf("sliding window\n");
+    		}
+    	}
+    	else {
+    		for (auto &it : retransmissionQueue) {
+    			if (it.frame.getFrameNumber() == frameNum) {
+    				it.ack = ACK;
+    			}
     		}
     	}
     }
@@ -80,29 +88,39 @@ class Transmitter {
 					if (!sendto(socketfd, it.serialize(), 9, 0, (struct sockaddr *)&receiverAddr, addrlen)) {
 						perror("sendto failed");
 					} 
+					else {
+						printf("Paket %d dikirim\n", it.getFrameNumber());
+					}
 
 					rQElement rqe;
 					rqe.frame = it;
 					rqe.lastSent = chrono::system_clock::now();
 					rqe.ack = NAK;
-					retransmissionQueue.push(rqe);
+					retransmissionQueue.push_back(rqe);
 				}
 
-				while (retransmissionQueue.size() == WINDOWSIZE && timeDiv(chrono::system_clock::now(), retransmissionQueue.front().lastSent) > TIMEOUT) {
-					rQElement rqe;
-					rqe.frame = retransmissionQueue.front().frame;
-					rqe.lastSent = chrono::system_clock::now();
-					rqe.ack = retransmissionQueue.front().ack;
+				while (retransmissionQueue.size() == WINDOWSIZE) {
+					if (!retransmissionQueue.empty()) {
+						if (timeDiv(chrono::system_clock::now(), retransmissionQueue.front().lastSent) > TIMEOUT) {
+							rQElement rqe;
+							rqe.frame = retransmissionQueue.front().frame;
+							rqe.lastSent = chrono::system_clock::now();
+							rqe.ack = retransmissionQueue.front().ack;
 
-					// retransmission if timeout and NAK
-					if (rqe.ack == NAK) {
-						if (!sendto(socketfd, rqe.frame.serialize(), 9, 0, (struct sockaddr *)&receiverAddr, addrlen)) {
-							perror("sendto failed");
-						} 
+							// retransmission if timeout and NAK
+							if (rqe.ack == NAK) {
+								if (!sendto(socketfd, rqe.frame.serialize(), 9, 0, (struct sockaddr *)&receiverAddr, addrlen)) {
+									perror("sendto failed");
+								} 
+								else {
+									printf("Paket %d dikirim ulang\n", rqe.frame.getFrameNumber());
+								}
+							}
+
+							retransmissionQueue.pop_front();
+							retransmissionQueue.push_back(rqe);
+						}
 					}
-
-					retransmissionQueue.pop();
-					retransmissionQueue.push(rqe);
 				} 
 			}
 		}

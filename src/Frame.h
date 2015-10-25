@@ -22,8 +22,8 @@ public:
   }
 
   // convert this to char*
-  char* serialize() {
-    char* temp = new char[9];
+  Byte* serialize() {
+    Byte* temp = new Byte[9];
     temp[0]=soh;
     temp[1]=frame_number & 0xFF;
     temp[2]=(frame_number >> 8) & 0xFF;
@@ -37,7 +37,7 @@ public:
   }
 
   // convert char* to this
-  void unserialize(char* c) {
+  void unserialize(Byte* c) {
     frame_number = (unsigned char)c[1] << 24 | (unsigned char)c[2] << 16 | (unsigned char)c[3] << 8 | (unsigned char)c[4];
     checksum = c[8];
     data = c[6];
@@ -57,7 +57,7 @@ public:
 
 private:
   // return checksum computed based on data
-  Byte getCRC(char* BitString) {
+  Byte getCRC(Byte* BitString) {
     unsigned long x = 0;
     for (int i=0; i<8; i++)
       x = (x<<8) + (unsigned long) BitString[i];

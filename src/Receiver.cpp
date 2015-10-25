@@ -25,8 +25,8 @@ struct arg_struct {
 
 struct arg_struct args;
 
-queue<char> q[BUFFER_SIZE];
-char buffer[N];
+queue<Byte> q[BUFFER_SIZE];
+Byte buffer[N];
 struct sockaddr_in myaddr;
 struct sockaddr_in remaddr;
 socklen_t addrlen;
@@ -85,19 +85,21 @@ public:
     initiate_binding();
     bind_socket();
 
-    
-    if(pthread_create(&receiver_thread, NULL, &run_receive, (void*) &args) != 0) {
+    int ret = pthread_create(&receiver_thread, NULL, &run_receive, (void*) &args); 
+    if(ret != 0) {
       puts("Threading receiver gagal");
       exit(0);
     }
-    if(pthread_create(&consumer_thread, NULL, &run_consume, (void*) &args) != 0) {
+    int rec = pthread_create(&consumer_thread, NULL, &run_consume, (void*) &args);
+    if(rec != 0) {
       puts("Threading consumer gagal");
       exit(0);
     }
-  }
-  ~Receiver() {
     pthread_exit(NULL);
     close(sockfd);
+  }
+  ~Receiver() {
+
   }
 private:
   void create_socket() {
@@ -136,7 +138,9 @@ private:
 
 int main(int _argc, char *_argv[]) {
   argc = _argc;
+  argv = new char*[argc];
   for(int i = 0; i < argc; i++) {
+    argv[i] = new char[strlen(_argv[i])];
     memcpy(argv[i], _argv[i], sizeof(_argv[i]));
   }
   Receiver rec;
