@@ -41,6 +41,9 @@ public:
     frame_number = (unsigned char)c[1] << 24 | (unsigned char)c[2] << 16 | (unsigned char)c[3] << 8 | (unsigned char)c[4];
     checksum = c[8];
     data = c[6];
+    soh = c[0];
+    stx=c[5];
+    etx=c[7];
   }
 
   unsigned int getFrameNumber() {
