@@ -2,6 +2,9 @@
 #define __FRAME_H
 
 #include "common.h"
+#include <bits/stdc++.h>
+
+using namespace std;
 
 class Frame {
 public:
@@ -33,12 +36,14 @@ public:
     temp[6]=data;
     temp[7]=etx;
     temp[8]=checksum;
+    //cout << temp[1] << ' ' << temp[2] << ' ' << temp[3] << ' ' << temp[4] << endl;
     return temp;
   }
 
   // convert char* to this
   void unserialize(Byte* c) {
-    frame_number = (unsigned char)c[1] << 24 | (unsigned char)c[2] << 16 | (unsigned char)c[3] << 8 | (unsigned char)c[4];
+    //cout << c[1] << ' ' << c[2] << ' ' << c[3] << ' ' << c[4] << endl;
+    frame_number = (c[1] << 24) | (c[2] << 16) | (c[3] << 8) | c[4];
     checksum = c[8];
     data = c[6];
     soh = c[0];
