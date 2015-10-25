@@ -6,44 +6,58 @@
 using namespace std;
 
 class Ack {
-public:
-<<<<<<< HEAD
-  ACK(Byte ack, unsigned int frame_number) {
-    
-=======
-  Ack() {
-
-  }
+public:   
+  Ack() {}
   Ack(Byte b, int frameNumber) {
-
->>>>>>> 1011e348b60b2f41e08af7fd11b62d15922f42c9
+    value = b;
+    frame_number = frameNumber;
+    checksum = 0;
+    checksum = getCRC(serialize());
   }
   bool isValid() {
-
+    return (checksum==getCRC(serialize()));
   }
   char* serialize() {
-
+    char* temp = new char[6];
+    temp[0]=value;
+    temp[1]=frame_number & 0xFF;
+    temp[2]=(frame_number >> 8) & 0xFF;
+    temp[3]=(frame_number >> 16) & 0xFF;
+    temp[4]=(frame_number >> 24) & 0xFF;
+    temp[5]=checksum;
+    return temp;
   }
   void unserialize(char* c) {
-
+    value = c[0];
+    frame_number = (unsigned char)c[1] << 24 | (unsigned char)c[2] << 16 | (unsigned char)c[3] << 8 | (unsigned char)c[4];
+    checksum = c[5];
   }
   Byte getAck() {
     return value;
   }
+  unsigned int getFrameNumber() {
+    return frame_number;
+  }
 
 private:
   // return checksum computed based on data
-  unsigned int generateChecksum() {
-
-  }
-  unsigned int hash(unsigned int input) {
-    unsigned int val = 5381;
-    val += ((input << 5) ^ ((input & 0xf8000000) >> 27));
-    return val;
+  Byte getCRC(char* BitString) {
+    unsigned long x = 0;
+    for (int i=0; i<6; i++)
+      x = (x<<8) + (unsigned long) BitString[i];
+    unsigned long polynomial = 0xEA8000000000;
+    for (int i=0; i<40; i++) {
+      if ((x>>(47-i)) % 2 == 1)
+        x = x ^ polynomial;
+      else
+        x = x ^ 0x0;
+      polynomial = polynomial >> 1;
+    }
+    return (Byte)x;
   }
   Byte value;
   unsigned int frame_number;
-  unsigned int checksum;
+  Byte checksum;
 };
 
 #endif
