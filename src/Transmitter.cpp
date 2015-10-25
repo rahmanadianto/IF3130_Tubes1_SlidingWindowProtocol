@@ -6,7 +6,7 @@
 #include "Ack.h"
 #include <chrono>
 
-const long long TIMEOUT = 25000; // millisecond
+const long long TIMEOUT = 3000; // millisecond
 
 int socketfd; // socket handler
 struct sockaddr_in transmitterAddr;
@@ -31,6 +31,7 @@ void* receiveAck(void* threadId) {
     ack.unserialize(buffer);
     int frameNum = ack.getFrameNumber();
     if(ack.isValid()) {
+    	cout << retransmissionQueue.front().frame.getFrameNumber() << ' ' << frameNum << endl;
     	if (retransmissionQueue.front().frame.getFrameNumber() == frameNum) {
     		while(retransmissionQueue.front().ack == ACK) {
     			retransmissionQueue.pop_front();
